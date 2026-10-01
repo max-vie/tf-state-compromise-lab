@@ -1,0 +1,19 @@
+# OpenTofu / Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate*
+*.tfplan
+crash.log
+
+# Agent / planning scratch
+CLAUDE.md
+AGENTS.md
+
+# Runtime state, regenerated per run
+.run/
+attack/act1/.stolen-creds.env
+
+# OS and editor
+.DS_Store
+.idea/
+.vscode/

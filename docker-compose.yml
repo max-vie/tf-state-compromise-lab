@@ -1,0 +1,37 @@
+# Demo runtime for the Terraform State & CI/CD Pipeline Compromise lab.
+#
+# Everything here is a test double, contained to this machine:
+#   localstack       -> stands in for real AWS (community edition)
+#   attacker-webhook -> the exfiltration endpoint; localhost only, logs to ./.run/webhook/
+
+services:
+  localstack:
+    image: localstack/localstack:4.14
+    # The image's root-then-drop-privileges entrypoint breaks under rootless
+    # Docker (mkdir as root is denied); run the process as its own uid directly.
+    user: "1000"
+    ports:
+      - "4566:4566"
+    environment:
+      # Everything the victim stack needs from community LocalStack.
+      SERVICES: s3,dynamodb,iam,ec2,ssm,sts,secretsmanager
+      AWS_DEFAULT_REGION: us-east-1
+      # Deterministic fake account id, so ARNs in the demo look realistic
+      AWS_ACCOUNT_ID: "000000000000"
+      # Persist state across restarts within one demo session is NOT wanted:
+      # `make reset` must give a clean account. Keep data inside the container.
+      DATA_DIR: /tmp/localstack/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:4566/_localstack/health"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  attacker-webhook:
+    image: python:3.12-alpine
+    command: python /srv/server.py
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./attack/webhook/server.py:/srv/server.py:ro,z
+      - ./.run/webhook:/data:z

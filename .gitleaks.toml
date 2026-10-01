@@ -1,0 +1,18 @@
+# gitleaks config for this lab.
+#
+# This repo contains *deliberately* fake credentials (the Act 1 leak artifact
+# and demo secret values). Default rules stay active ([extend]); the
+# allowlist below only exempts the designated demo artifacts, so any real
+# looking secret anywhere else still fails the gate.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Demo-only fakes: values live only in the staged leak artifact or carry the demo-only: marker."
+paths = [
+  '''attack/act1/history-leak/.*''',
+]
+regexes = [
+  '''demo-only:''',
+]
