@@ -1,0 +1,9 @@
+# demo-only: fabricated shell history for Act 1 of the attack story.
+# Not a real machine; the credentials are fake and accepted by LocalStack.
+aws configure list
+export AWS_ACCESS_KEY_ID=AKIADEMO0000FAKEKEYX
+export AWS_SECRET_ACCESS_KEY=demo-only:Le4ked-S3cret-0f-Devs-4141-fake-fake
+export AWS_REGION=us-east-1
+aws s3 ls
+make apply
+cd ~/work/acme-shop-terraform && make apply

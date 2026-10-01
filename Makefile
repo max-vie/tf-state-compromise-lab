@@ -37,6 +37,10 @@ verify: ## run all local sanity gates (must pass before any commit)
 selftest: ## prove the gates have teeth: plant violations, watch each fail, clean up
 	scripts/dev/selftest-gates.sh
 
+.PHONY: attack
+attack: up ## run act 1: leak the state via history-stolen keys
+	./attack/act1/run.sh
+
 .PHONY: bootstrap
 bootstrap: up ## create the $(SCENARIO) state backend (bucket + lock table)
 	source scripts/env/localstack.env && \

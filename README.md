@@ -25,10 +25,12 @@ the hardened variant are not written yet.
 - Everything runs against LocalStack in Docker. The Terraform code applies
   unchanged to real AWS; see `docs/aws-migration.md`.
 
-## Usage (once complete)
+## Usage
 
 ```sh
 make up     # start LocalStack and the fake attacker webhook
-make attack # run the attack chain against the vulnerable scenario
-make defend # run it against the hardened scenario and watch it fail
+make attack # act 1: leak the state via history-stolen keys
 ```
+
+Acts 2 (rogue module) and 3 (lateral movement) and `make defend` are not
+written yet.
