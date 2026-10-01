@@ -6,7 +6,7 @@ and of the defenses that stop each step:
 1. State leak. Fake AWS keys leak, the state backend has no encryption, and
    the database password ends up readable straight out of `terraform.tfstate`.
 2. Rogue module. An innocent-looking pull request adds a module that sends
-   the deployed secrets to an attacker's server.
+   the deployed secrets to an attacker's server on every pipeline run.
 3. Lateral movement. The CI pipeline's over-broad IAM role is used to reach
    production data that a narrow runtime role owns.
 
@@ -29,8 +29,7 @@ the hardened variant are not written yet.
 
 ```sh
 make up     # start LocalStack and the fake attacker webhook
-make attack # act 1: leak the state via history-stolen keys
+make attack # run the kill chain: act 1 (state leak), act 2 (rogue module)
 ```
 
-Acts 2 (rogue module) and 3 (lateral movement) and `make defend` are not
-written yet.
+Act 3 (lateral movement) and `make defend` are not written yet.
