@@ -30,6 +30,7 @@ the hardened variant are not written yet.
 ```sh
 make up     # start LocalStack and the fake attacker webhook
 make attack # run the kill chain: state leak, rogue module, lateral movement
+make defend # apply the hardened scenario and watch the same chain stop
 ```
 
-`make defend` (the hardened variant) is not written yet.
+The writeup (`docs/writeup.md`) is still a stub.

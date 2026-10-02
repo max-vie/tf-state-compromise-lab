@@ -48,6 +48,13 @@ attack: up ## run the attack chain (acts 1-3) against the vulnerable scenario
 	@echo "act 3: lateral movement from the pipeline identity into prod"
 	./attack/act3/run.sh
 
+.PHONY: defend
+defend: up ## apply the hardened scenario and watch the attack chain stop
+	$(MAKE) --no-print-directory bootstrap SCENARIO=hardened >/dev/null
+	lines=$$(wc -l < .run/webhook/exfil.log 2>/dev/null || echo 0) && \
+	$(MAKE) --no-print-directory apply SCENARIO=hardened >/dev/null && \
+	EXFIL_LINES=$$lines ./attack/defend/run.sh
+
 .PHONY: bootstrap
 bootstrap: up ## create the $(SCENARIO) state backend (bucket + lock table)
 	source scripts/env/localstack.env && \
