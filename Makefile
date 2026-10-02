@@ -38,12 +38,15 @@ selftest: ## prove the gates have teeth: plant violations, watch each fail, clea
 	scripts/dev/selftest-gates.sh
 
 .PHONY: attack
-attack: up ## run the attack chain (acts 1-2) against the vulnerable scenario
+attack: up ## run the attack chain (acts 1-3) against the vulnerable scenario
 	./attack/act1/run.sh
 	@echo
 	@echo "act 2: the rogue module phones home on the next pipeline run"
 	$(MAKE) --no-print-directory apply >/dev/null
 	./attack/act2/run.sh
+	@echo
+	@echo "act 3: lateral movement from the pipeline identity into prod"
+	./attack/act3/run.sh
 
 .PHONY: bootstrap
 bootstrap: up ## create the $(SCENARIO) state backend (bucket + lock table)

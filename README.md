@@ -29,7 +29,7 @@ the hardened variant are not written yet.
 
 ```sh
 make up     # start LocalStack and the fake attacker webhook
-make attack # run the kill chain: act 1 (state leak), act 2 (rogue module)
+make attack # run the kill chain: state leak, rogue module, lateral movement
 ```
 
-Act 3 (lateral movement) and `make defend` are not written yet.
+`make defend` (the hardened variant) is not written yet.
