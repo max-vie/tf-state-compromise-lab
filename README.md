@@ -13,8 +13,9 @@ and of the defenses that stop each step:
 The whole chain succeeds against the vulnerable scenario. Run it against the
 hardened variant and it fails at every step.
 
-The vulnerable scenario and its checks are in place. The attack scripts and
-the hardened variant are not written yet.
+More background in `docs/`: a walkthrough of the whole attack chain and its
+defenses (`docs/writeup.md`), and how to point the same Terraform at real AWS
+(`docs/aws-migration.md`).
 
 ## Safety
 
@@ -33,4 +34,4 @@ make attack # run the kill chain: state leak, rogue module, lateral movement
 make defend # apply the hardened scenario and watch the same chain stop
 ```
 
-The writeup (`docs/writeup.md`) is still a stub.
+Both scenarios are complete and the gates in `scripts/check/` keep them honest.
