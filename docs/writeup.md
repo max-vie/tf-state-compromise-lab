@@ -2,7 +2,7 @@
 
 ## What this lab shows
 
-This lab runs the "Terraform State & CI/CD Pipeline Compromise" threat end to end, then stops the same chain with defenses. A small e-commerce stack (the "Acme Shop") is deployed by a compromised pipeline. Every credential in the repo is fake and generated per run, and the attacker's collection endpoint is `http://localhost:8081` inside Docker; nothing here targets a real account.
+This lab runs the "Terraform State & CI/CD Pipeline Compromise" threat end to end, then stops the same chain with defenses. A small e-commerce stack (the "Acme Shop") is deployed by a compromised pipeline, and the chain ends with the attacker erasing the shop's state. Every credential in the repo is fake and generated per run, and the attacker's collection endpoint is `http://localhost:8081` inside Docker; nothing here targets a real account.
 
 ## Setup
 
@@ -31,6 +31,12 @@ A pull request added a "usage reporting" module (`scenarios/vulnerable/telemetry
 The deploy role in `scenarios/vulnerable/iam.tf` carries a policy with `Action = "*"` on `Resource = "*"` and is trusted by the static CI identity. The attacker assumes the role (`sts assume-role`) with the leaked keys and reads the production parameters `/prod/acme-shop/db_password` and `/prod/acme-shop/api_key` under it.
 
 **Defense.** The hardened deploy role (`scenarios/hardened/iam.tf`) gets only what a deployment needs: read this stack's SSM parameters, fetch this stack's assets. No wildcard statement remains, so there is no catch-all to pivot with.
+
+## Act 4: state sabotage
+
+With everything useful already taken, the attacker goes after the backend: `scenarios/vulnerable/bootstrap/main.tf` created the state bucket without versioning, so a single `s3api delete-object` on the state object erases the shop's map (the same move removes the state digest tofu keeps in the lock table). The stack keeps running, but `tofu state pull` fails, no plan can be built, and there is no record of what was applied. The recovery check (`list-object-versions`) finds nothing: with versioning off, the delete was final. A plain re-apply only collides with the orphans it no longer knows about, which is why the demo rebuilds its environment fresh after the act; real incident response would import the orphans by hand.
+
+**Defense.** The hardened bootstrap (`scenarios/hardened/bootstrap/main.tf`) enables S3 versioning, so the same delete only lays down a delete marker over the surviving version. `make defend` act 4 performs the full restore on camera: delete, show the marker and the surviving versions, remove the marker, pull the state again, and compare it byte for byte with the pre-delete pull. This is the one defense in the lab the emulator fully honors, since versioning is plain storage behavior rather than IAM enforcement.
 
 ## Honest limits
 

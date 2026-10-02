@@ -29,6 +29,9 @@ services:
 
   attacker-webhook:
     image: python:3.12-alpine
+    # Same reason as localstack: the log file is bind-mounted from the host
+    # and `make reset` must be able to delete it (root-owned files are not).
+    user: "1000"
     command: python /srv/server.py
     ports:
       - "8081:8080"

@@ -9,6 +9,9 @@ and of the defenses that stop each step:
    the deployed secrets to an attacker's server on every pipeline run.
 3. Lateral movement. The CI pipeline's over-broad IAM role is used to reach
    production data that a narrow runtime role owns.
+4. State sabotage. The attacker deletes the state object; with no versioning
+   on the backend bucket, that delete is final, and the shop cannot be
+   rebuilt on its orphaned remains.
 
 The whole chain succeeds against the vulnerable scenario. Run it against the
 hardened variant and it fails at every step.
@@ -30,7 +33,7 @@ defenses (`docs/writeup.md`), and how to point the same Terraform at real AWS
 
 ```sh
 make up     # start LocalStack and the fake attacker webhook
-make attack # run the kill chain: state leak, rogue module, lateral movement
+make attack # run the kill chain: state leak, rogue module, lateral movement, state sabotage
 make defend # apply the hardened scenario and watch the same chain stop
 ```
 

@@ -24,6 +24,9 @@ down: ## stop the demo runtime
 reset: ## full wipe: containers + emulator volume + captured webhook logs + state
 	docker compose down -v --remove-orphans
 	rm -rf .run/webhook
+	# create this on the host: docker would recreate a missing bind dir as
+	# root, and the webhook container writes as uid 1000
+	mkdir -p .run/webhook
 	@echo "reset: clean slate"
 
 .PHONY: verify
@@ -38,7 +41,7 @@ selftest: ## prove the gates have teeth: plant violations, watch each fail, clea
 	scripts/dev/selftest-gates.sh
 
 .PHONY: attack
-attack: up ## run the attack chain (acts 1-3) against the vulnerable scenario
+attack: up ## run the attack chain (acts 1-4) against the vulnerable scenario
 	./attack/act1/run.sh
 	@echo
 	@echo "act 2: the rogue module phones home on the next pipeline run"
@@ -47,6 +50,18 @@ attack: up ## run the attack chain (acts 1-3) against the vulnerable scenario
 	@echo
 	@echo "act 3: lateral movement from the pipeline identity into prod"
 	./attack/act3/run.sh
+	@echo
+	@echo "act 4: the attacker erases the shop's memory"
+	./attack/act4/run.sh
+	@echo
+	@echo "act 4 epilogue: the shop cannot be rebuilt on its remains"
+	@echo "  a re-apply collides with the orphans it no longer knows about;"
+	@echo "  instead the whole demo environment is rebuilt fresh (on real"
+	@echo "  AWS, incident response would import the orphans by hand)"
+	$(MAKE) --no-print-directory reset
+	$(MAKE) --no-print-directory up >/dev/null
+	$(MAKE) --no-print-directory bootstrap >/dev/null
+	$(MAKE) --no-print-directory apply >/dev/null
 
 .PHONY: defend
 defend: up ## apply the hardened scenario and watch the attack chain stop
